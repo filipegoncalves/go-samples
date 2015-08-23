@@ -1,3 +1,10 @@
+/* Taken from the Go Tour (Exercise: Loops and Functions)
+ *
+ * Next, change the loop condition to stop once the value has stopped changing (or only changes by
+ * a very small delta). See if that's more or fewer iterations. How close are you to the math.Sqrt?
+ *
+ */
+
 package main
 
 import (
