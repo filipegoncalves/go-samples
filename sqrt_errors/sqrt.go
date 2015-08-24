@@ -41,13 +41,11 @@ func Sqrt(x float64) (float64, error) {
 		return 0, nil
 	}
 
-	z := 1.0
-	prev := 0.0
+	z, prev := 1.0, 0.0
 	const delta = 0.00000000001
 
 	for math.Abs(z-prev) > delta {
-		prev = z
-		z -= (z*z-x)/(2*z)
+		z, prev = z-(z*z-x)/(2*z), z
 	}
 
 	return z, nil
