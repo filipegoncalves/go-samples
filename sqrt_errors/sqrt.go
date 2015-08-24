@@ -53,6 +53,10 @@ func Sqrt(x float64) (float64, error) {
 	return z, nil
 }
 
+/* We need to convert `e' back to a float64 here to avoid entering an infinite loop.
+ * If we don't, the code ends up calling ErrNegativeSqrt.Error() to convert `e' into a string, which
+ * is what the function is supposed to do in the first place!
+ */
 func (e ErrNegativeSqrt) Error() string {
 	return fmt.Sprintf("cannot Sqrt negative number: %v", float64(e))
 }
