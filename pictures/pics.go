@@ -25,7 +25,6 @@ import "golang.org/x/tour/pic"
  * pic3: x^y
  *
  */
-
 var pic_fun = pic1
 
 func main() {
