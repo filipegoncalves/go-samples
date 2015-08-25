@@ -16,7 +16,8 @@ type Struct struct {
 }
 
 func (s Struct) String() string {
-	return fmt.Sprintf("Greeting: %v; Punct: %v; Who: %v", s.Greeting, s.Punct, s.Who)
+	return fmt.Sprintf("Greeting: \"%v\"; Punct: \"%v\"; Who: \"%v\"",
+		s.Greeting, s.Punct, s.Who)
 }
 
 func (s *Struct) ServeHTTP(w http.ResponseWriter, r *http.Request) {
