@@ -1,3 +1,8 @@
+/* A 10-second "bomb" to show the awesomeness and simplicity of Go
+ *
+ * Based off one of the Go Tour examples to show channel usage
+ *
+ */
 
 package main
 
