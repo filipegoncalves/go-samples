@@ -24,6 +24,21 @@ func Crawl(url string, depth int, fetcher Fetcher, ch chan string, visited_ch ch
 		return
 	}
 
+	/* This implements an atomic "test and set" for the visited map. It atomically fetches the
+         * visited status for the URL and sets it.
+         *
+         * This is cleverly achieved by using a buffered channel with unitary capacity where worker
+         * threads consume the map when they want to read and mutate it, and write it back to the
+         * channel once they're done.
+         *
+         * Note that the channel must be buffered with a capacity of 1, otherwise we would deadlock
+         * because unbuffered channels block readers and writers until the other end is ready.
+         *
+         * This is Go's philosophy of concurrency:
+         * Don't communicate by sharing memory, share memory by communicating
+         *
+         * How brilliant is that?
+         */
 	visited := <- visited_ch
 	_, found := visited[url]
 	visited[url] = true
@@ -47,6 +62,20 @@ func Crawl(url string, depth int, fetcher Fetcher, ch chan string, visited_ch ch
 		chans[i] = make(chan string)
 		go Crawl(u, depth-1, fetcher, chans[i], visited_ch)
 	}
+
+	/* This is how we implement synchronization and wait for other threads to finish.
+         *
+         * Each Crawl() thread is assigned its own channel to write results to. Each thread closes
+         * its channel once it's done, that is, after writing its own results into the channel and
+         * the results of the goroutines it spawned. Thus, results flow from a set of channels down
+         * the "channel tree" until they reach the main, primary channel.
+         *
+         * This clever mechanism allows goroutines to wait for other spawned routines to terminate
+         * before returning and closing their own channel.
+         *
+         * Synchronization is implicitly achieved with the channels, because each thread defers
+         * closing the channel, which is wonderful.
+         */
 
 	for i := range chans {
 		for s := range chans[i] {
