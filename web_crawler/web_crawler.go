@@ -6,37 +6,50 @@ import (
 )
 
 type Fetcher interface {
-	// Fetch returns the body of URL and
-	// a slice of URLs found on that page.
 	Fetch(url string) (body string, urls []string, err error)
 }
 
-// Crawl uses fetcher to recursively crawl
-// pages starting with url, to a maximum of depth.
-func Crawl(url string, depth int, fetcher Fetcher) {
-	// TODO: Fetch URLs in parallel.
-	// TODO: Don't fetch the same URL twice.
-	// This implementation doesn't do either:
+func Crawl(url string, depth int, fetcher Fetcher, ch chan string) {
+
+	defer close(ch)
+
 	if depth <= 0 {
 		return
 	}
+
 	body, urls, err := fetcher.Fetch(url)
+
 	if err != nil {
-		fmt.Println(err)
+		ch <- fmt.Sprintln(err)
 		return
 	}
-	fmt.Printf("found: %s %q\n", url, body)
-	for _, u := range urls {
-		Crawl(u, depth-1, fetcher)
+
+	ch <- fmt.Sprintf("found: %s %q\n", url, body)
+
+	chans := make([]chan string, len(urls))
+	for i, u := range urls {
+		chans[i] = make(chan string)
+		go Crawl(u, depth-1, fetcher, chans[i])
 	}
+
+	for i := range chans {
+		for s := range chans[i] {
+			ch <- s
+		}
+	}
+
 	return
 }
 
 func main() {
-	Crawl("http://golang.org/", 4, fetcher)
+	ch := make(chan string)
+	go Crawl("http://golang.org/", 4, fetcher, ch)
+	for s := range ch {
+		fmt.Print(s)
+	}
 }
 
-// fakeFetcher is Fetcher that returns canned results.
+// fakeFetcher is a Fetcher that returns canned results.
 type fakeFetcher map[string]*fakeResult
 
 type fakeResult struct {
