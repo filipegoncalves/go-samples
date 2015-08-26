@@ -9,11 +9,20 @@ type Fetcher interface {
 	Fetch(url string) (body string, urls []string, err error)
 }
 
-func Crawl(url string, depth int, fetcher Fetcher, ch chan string) {
+func Crawl(url string, depth int, fetcher Fetcher, ch chan string, visited_ch chan map[string]bool) {
 
 	defer close(ch)
 
 	if depth <= 0 {
+		return
+	}
+
+	visited := <- visited_ch
+	_, found := visited[url]
+	visited[url] = true
+	visited_ch <- visited
+
+	if found {
 		return
 	}
 
@@ -29,7 +38,7 @@ func Crawl(url string, depth int, fetcher Fetcher, ch chan string) {
 	chans := make([]chan string, len(urls))
 	for i, u := range urls {
 		chans[i] = make(chan string)
-		go Crawl(u, depth-1, fetcher, chans[i])
+		go Crawl(u, depth-1, fetcher, chans[i], visited_ch)
 	}
 
 	for i := range chans {
@@ -43,7 +52,12 @@ func Crawl(url string, depth int, fetcher Fetcher, ch chan string) {
 
 func main() {
 	ch := make(chan string)
-	go Crawl("http://golang.org/", 4, fetcher, ch)
+
+	visited_ch := make(chan map[string]bool, 1)
+	visited_ch <- make(map[string]bool)
+
+	go Crawl("http://golang.org/", 4, fetcher, ch, visited_ch)
+
 	for s := range ch {
 		fmt.Print(s)
 	}
