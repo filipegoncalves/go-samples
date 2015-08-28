@@ -59,7 +59,7 @@ func Crawl(url string, depth int, fetcher Fetcher, ch chan string, visited_ch ch
 
 	chans := make([]chan string, len(urls))
 	for i, u := range urls {
-		chans[i] = make(chan string)
+		chans[i] = make(chan string, 128)
 		go Crawl(u, depth-1, fetcher, chans[i], visited_ch)
 	}
 
@@ -87,7 +87,7 @@ func Crawl(url string, depth int, fetcher Fetcher, ch chan string, visited_ch ch
 }
 
 func main() {
-	ch := make(chan string)
+	ch := make(chan string, 128)
 
 	visited_ch := make(chan map[string]bool, 1)
 	visited_ch <- make(map[string]bool)
