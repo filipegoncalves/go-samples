@@ -67,11 +67,15 @@ func Crawl(url string, depth int, fetcher Fetcher, ch chan string, visited_ch ch
          *
          * Each Crawl() thread is assigned its own channel to write results to. Each thread closes
          * its channel once it's done, that is, after writing its own results into the channel and
-         * the results of the goroutines it spawned. Thus, results flow from a set of channels down
+         * the results of the goroutines it spawned. Thus, results flow from a set of channels up
          * the "channel tree" until they reach the main, primary channel.
          *
          * This clever mechanism allows goroutines to wait for other spawned routines to terminate
          * before returning and closing their own channel.
+         *
+         * The channels are buffered (with a capacity of 128) because otherwise there is not much
+         * parallelism, since each thread could only make progress after the parent thread fetched
+         * the last result written.
          *
          * Synchronization is implicitly achieved with the channels, because each thread defers
          * closing the channel, which is wonderful.
