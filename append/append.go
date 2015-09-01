@@ -1,3 +1,8 @@
+/* A small example demonstrating how append() is implemented
+ *
+ * Based on the ideas exposed in http://blog.golang.org/slices
+ */
+
 package main
 
 import "fmt"
