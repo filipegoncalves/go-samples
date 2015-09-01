@@ -1,3 +1,24 @@
+/* Exercise taken from http://blog.golang.org/slices
+ *
+ * type path []byte
+ *
+ * func (p path) ToUpper() {
+ *     for i, b := range p {
+ *         if 'a' <= b && b <= 'z' {
+ *             p[i] = b + 'A' - 'a'
+ *         }
+ *     }
+ * }
+ *
+ * func main() {
+ *     pathName := path("/usr/bin/tso")
+ *     pathName.ToUpper()
+ *     fmt.Printf("%s\n", pathName)
+ * }
+ *
+ * Advanced exercise: Convert the ToUpper method to handle Unicode letters, not just ASCII.
+ *
+ */
 
 package main
 
