@@ -16,10 +16,8 @@ func FindDigits(filename string) ([]byte, error) {
 	}
 
 	b = digitRegexp.Find(b)
-	c := make([]byte, len(b))
-	copy(c, b)
 
-	return c, nil
+	return append([]byte{}, b...), nil
 }
 
 func main() {
