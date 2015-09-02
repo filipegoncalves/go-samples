@@ -1,3 +1,22 @@
+/* Code based on the post "Go Slices: usage and internals", from the
+ * Go blog: http://blog.golang.org/go-slices-usage-and-internals
+ *
+ * [...]
+ * To fix this problem one can copy the interesting data to a new slice before returning it:
+ *
+ * func CopyDigits(filename string) []byte {
+ *     b, _ := ioutil.ReadFile(filename)
+ *     b = digitRegexp.Find(b)
+ *     c := make([]byte, len(b))
+ *     copy(c, b)
+ *     return c
+ * }
+ *
+ * A more concise version of this function could be constructed by using append. This is left as an
+ * exercise for the reader.
+ *
+ */
+
 package main
 
 import (
@@ -7,6 +26,10 @@ import (
 )
 
 var digitRegexp = regexp.MustCompile("[0-9]+")
+
+/* Note: this version not only makes it smaller (it uses return append([]byte{}, b...) instead of
+ *       make+copy), but it also deals with error handling, which is important, but often ignored.
+ */
 
 func FindDigits(filename string) ([]byte, error) {
 	b, e := ioutil.ReadFile(filename)
