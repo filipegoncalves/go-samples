@@ -26,12 +26,10 @@ func fanIn(input1, input2 <- chan string) <- chan string {
 }
 
 func main() {
-	joe := boring("joe")
-	ann := boring("ann")
+	c := fanIn(boring("joe"), boring("ann"))
 
-	for i := 0; i < 5; i++ {
-		fmt.Println(<- joe)
-		fmt.Println(<- ann)
+	for i := 0; i < 20; i++ {
+		fmt.Println(<- c)
 	}
 
 	fmt.Println("You're boring, I'm leaving.")
