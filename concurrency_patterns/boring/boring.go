@@ -26,4 +26,6 @@ func main() {
 		fmt.Println(<- joe)
 		fmt.Println(<- ann)
 	}
+
+	fmt.Println("You're boring, I'm leaving.")
 }
