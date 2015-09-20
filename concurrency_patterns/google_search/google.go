@@ -11,9 +11,20 @@ type Result string
 type Search func(query string) Result
 
 var (
-	Web = fakeSearch("web")
-	Image = fakeSearch("image")
-	Video = fakeSearch("video")
+	Web = []Search{
+		fakeSearch("web1.google.com"),
+		fakeSearch("web2.google.com"),
+		fakeSearch("web3.google.com")}
+
+	Image = []Search{
+		fakeSearch("image1.google.com"),
+		fakeSearch("image2.google.com"),
+		fakeSearch("image3.google.com")}
+
+	Video = []Search{
+		fakeSearch("video1.google.com"),
+		fakeSearch("video2.google.com"),
+		fakeSearch("video3.google.com")}
 )
 
 func fakeSearch(kind string) func(query string) Result {
@@ -23,12 +34,22 @@ func fakeSearch(kind string) func(query string) Result {
 	}
 }
 
+func First(query string, replicas ...Search) Result {
+	c := make(chan Result)
+
+	for _, r := range replicas {
+		go func() { c <- r(query) }()
+	}
+
+	return <- c
+}
+
 func Google(query string) (results []Result) {
 	c := make(chan Result)
 
-	go func() { c <- Web(query) }()
-	go func() { c <- Image(query) }()
-	go func() { c <- Video(query) }()
+	go func() { c <- First(query, Web...) }()
+	go func() { c <- First(query, Image...) }()
+	go func() { c <- First(query, Video...) }()
 
 	timeout := time.After(80 * time.Millisecond)
 
