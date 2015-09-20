@@ -37,10 +37,15 @@ func fanIn(input1, input2 <- chan string) <- chan string {
 
 func main() {
 	c := fanIn(boring("joe"), boring("ann"))
+	t := time.After(5 * time.Second)
 
-	for i := 0; i < 20; i++ {
-		fmt.Println(<- c)
+	for {
+		select {
+		case s := <- c:
+			fmt.Println(s)
+		case <- t:
+			fmt.Println("You're too slow.")
+			return
+		}
 	}
-
-	fmt.Println("You're boring, I'm leaving.")
 }
