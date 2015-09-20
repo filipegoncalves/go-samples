@@ -21,6 +21,7 @@ func main() {
 		right = left
 	}
 
-	rightmost <- 1
+	go func() { rightmost <- 1 }()
+
 	fmt.Println(<- left)
 }
